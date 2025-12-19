@@ -1,73 +1,52 @@
-import './styles/main.css'
-import { questionData } from './data/question.js'
+/**
+ * Main Application Entry Point
+ * Initializes and coordinates all components
+ */
 
-const app = document.querySelector('#app')
-let timeLeft = Number(questionData.limit)
-let timerId = null
+import ApiService from './api-service.js';
+import Timer from './timer.js';
+import HighScoreManager from './highscore.js';
+import UIManager from './ui-manager.js';
+import QuizGame from './quiz.js';
 
-function renderQuestion () {
-  app.innerHTML = `
-    <h2>${questionData.question}</h2>
-    <p id="timer">Time left: ${timeLeft}s</p>
+/**
+ * Initialize the application
+ */
+class QuizApplication {
+    constructor() {
+        this.apiService = new ApiService();
+        this.timer = new Timer(10); // 10 seconds per question
+        this.highscoreManager = new HighScoreManager();
+        this.uiManager = new UIManager();
+        this.quizGame = new QuizGame(
+            this.apiService,
+            this.timer,
+            this.highscoreManager,
+            this.uiManager
+        );
 
-    <form id="quiz-form">
-      <input type="text" name="answer" required />
-      <br><br>
-      <button type="submit">Submit</button>
-    </form>
-
-    <p>${questionData.message}</p>
-  `
-
-  document
-    .querySelector('#quiz-form')
-    .addEventListener('submit', handleSubmit)
-}
-
-function handleSubmit (event) {
-  event.preventDefault()
-  clearInterval(timerId)
-
-  const answer = new FormData(event.target).get('answer')
-
-  app.innerHTML = `
-    <h2>Answer submitted!</h2>
-    <p>Your answer: <strong>${answer}</strong></p>
-    <p>(UI only – no backend validation)</p>
-  `
-}
-
-function startTimer () {
-  timerId = setInterval(() => {
-    timeLeft--
-
-    const timer = document.querySelector('#timer')
-    if (timer) {
-      timer.textContent = `Time left: ${timeLeft}s`
+        this.initialize();
     }
 
-    if (timeLeft === 0) {
-      clearInterval(timerId)
-      gameOver()
+    /**
+     * Initialize the application
+     */
+    initialize() {
+        console.log('Quiz Application initialized');
+        
+        // Focus on nickname input on start
+        this.uiManager.elements.nickname.focus();
+
+        // Display initial high scores if any
+        const highscores = this.highscoreManager.getHighScores();
+        this.uiManager.displayHighScores(highscores, this.highscoreManager);
     }
-  }, 1000)
 }
 
-function gameOver () {
-  app.innerHTML = `
-    <h2>Game Over</h2>
-    <p>Time ran out.</p>
-    <button id="restart">Restart</button>
-  `
+// Start the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new QuizApplication();
+});
 
-  document
-    .querySelector('#restart')
-    .addEventListener('click', () => {
-      timeLeft = Number(questionData.limit)
-      renderQuestion()
-      startTimer()
-    })
-}
-
-renderQuestion()
-startTimer()
+// Export for testing if needed
+export default QuizApplication;

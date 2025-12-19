@@ -1,34 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Quiz UI</title>
-  <script type="module" src="./main.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    #app {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      width: 300px;
-      text-align: center;
-    }
-
-    #timer {
-      font-weight: bold;
-      color: red;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Challenge</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div id="app"></div>
+    <div id="app">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <header>
+                <h1><i class="fas fa-brain"></i> Quiz Challenge</h1>
+                <p class="subtitle">Test your knowledge against the clock!</p>
+            </header>
+            
+            <div class="card">
+                <h2>Enter Your Nickname</h2>
+                <div class="input-group">
+                    <input type="text" id="nickname" placeholder="Enter nickname" maxlength="20" autofocus>
+                    <button id="start-btn" class="btn-primary">
+                        <i class="fas fa-play"></i> Start Quiz
+                    </button>
+                </div>
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> How to Play</h3>
+                    <ul>
+                        <li>You have <strong>10 seconds</strong> per question</li>
+                        <li>Answer using text or select options</li>
+                        <li>Use <kbd>Tab</kbd> and <kbd>Enter</kbd> to navigate quickly</li>
+                        <li>Try to beat the high score!</li>
+                    </ul>
+                </div>
+                <div class="links">
+                    <button id="view-highscore-btn" class="btn-secondary">
+                        <i class="fas fa-trophy"></i> View High Scores
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <header>
+                <div class="game-info">
+                    <div class="player-info">
+                        <span id="player-name"></span>
+                    </div>
+                    <div class="stats">
+                        <div class="stat">
+                            <i class="fas fa-clock"></i>
+                            <span id="timer">10</span>s
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-question-circle"></i>
+                            Question: <span id="question-number">1</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="card">
+                <div id="question-container">
+                    <h2 id="question-text">Loading question...</h2>
+                    <div id="answer-container">
+                        <!-- Answers will be inserted here -->
+                    </div>
+                    <div class="game-controls">
+                        <button id="submit-answer" class="btn-primary" disabled>
+                            <i class="fas fa-paper-plane"></i> Submit Answer
+                        </button>
+                        <button id="give-up-btn" class="btn-secondary">
+                            <i class="fas fa-flag"></i> Give Up
+                        </button>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="screen">
+            <div class="card">
+                <div id="result-message">
+                    <h2 id="result-title"></h2>
+                    <p id="result-details"></p>
+                    <div id="final-stats"></div>
+                </div>
+                <div class="actions">
+                    <button id="play-again-btn" class="btn-primary">
+                        <i class="fas fa-redo"></i> Play Again
+                    </button>
+                    <button id="back-to-start-btn" class="btn-secondary">
+                        <i class="fas fa-home"></i> Back to Start
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- High Score Screen -->
+        <div id="highscore-screen" class="screen">
+            <div class="card">
+                <h2><i class="fas fa-trophy"></i> High Scores</h2>
+                <div id="highscore-list">
+                    <!-- High scores will be inserted here -->
+                </div>
+                <div class="actions">
+                    <button id="back-from-highscore" class="btn-primary">
+                        <i class="fas fa-arrow-left"></i> Back to Game
+                    </button>
+                    <button id="clear-highscores" class="btn-secondary">
+                        <i class="fas fa-trash"></i> Clear High Scores
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
 </body>
 </html>

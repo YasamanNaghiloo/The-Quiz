@@ -202,3 +202,162 @@ li:hover {
     font-size: 1.1rem;
   }
 }
+/* Add to style.css */
+
+/* Focus styles for keyboard navigation */
+:focus {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+}
+
+.radio-option {
+  display: block;
+  padding: 0.8rem;
+  margin: 0.5rem 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.radio-option:hover,
+.radio-option:focus-within {
+  background-color: #f1f5f9;
+  border-color: #667eea;
+}
+
+.radio-option input[type="radio"]:checked + span {
+  font-weight: bold;
+  color: #667eea;
+}
+
+/* Button group for horizontal/vertical navigation */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.button-group button {
+  flex: 1;
+}
+
+/* Animation for low timer warning */
+@keyframes pulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.1);
+  }
+}
+
+/* Ensure text input has good focus */
+.text-answer:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+/* Add these to your style.css */
+
+/* Focus styles for all elements */
+:focus {
+  outline: 3px solid #667eea;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Radio option styling */
+.radio-option {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem;
+  margin: 0.5rem 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.radio-option:hover,
+.radio-option:focus-within {
+  background-color: #f1f5f9;
+  border-color: #667eea;
+}
+
+.radio-option input[type="radio"] {
+  margin-right: 0.8rem;
+  cursor: pointer;
+}
+
+.radio-option label {
+  cursor: pointer;
+  flex: 1;
+}
+
+/* Submit button styling */
+.submit-btn {
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+  padding: 0.9rem;
+}
+
+/* Button group for horizontal navigation */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.button-group button {
+  flex: 1;
+}
+
+/* Animation for low timer warning */
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+/* Text input focus */
+.text-answer {
+  font-size: 1.1rem;
+  padding: 0.9rem;
+}
+
+.text-answer:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+/* Make sure forms are properly spaced */
+#answer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+/* High scores list */
+ol {
+  margin: 1.5rem 0;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin: 0.8rem 0;
+  padding: 0.5rem;
+  background-color: #f8fafc;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+li:hover {
+  background-color: #e2e8f0;
+}

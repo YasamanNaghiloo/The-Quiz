@@ -7,8 +7,8 @@ const app = document.getElementById('app')
 export function showHighScores() {
   const scores = getScores()
 
-  let scoreHTML = '<h2>🏆 High Scores</h2>'
-  if (scores.length === 0) scoreHTML += '<p>No high scores yet.</p>'
+  let scoreHTML = '<h2 tabindex="0">🏆 High Scores</h2>'
+  if (scores.length === 0) scoreHTML += '<p tabindex="0">No high scores yet.</p>'
   else {
     scoreHTML += '<ol>'
     scores.forEach(s => {
@@ -17,37 +17,91 @@ export function showHighScores() {
     scoreHTML += '</ol>'
   }
 
-  scoreHTML += `<button id="back">⬅️ Back</button>`
+  scoreHTML += `<button id="back" tabindex="0">⬅️ Back</button>`
   app.innerHTML = scoreHTML
 
-  const firstButton = app.querySelector('button')
-  if (firstButton) firstButton.focus()
-  document.getElementById('back').onclick = () => showHome()
+  const backButton = document.getElementById('back')
+  if (backButton) {
+    backButton.focus()
+    
+    // Handle Enter key on back button
+    backButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        backButton.click()
+      }
+    })
+    
+    backButton.onclick = () => showHome()
+  }
 }
 
 function showHome() {
   app.innerHTML = `
-    <h1>🧠 Quiz Game</h1>
-    <input id="nickname" placeholder="📝 Your nickname" />
-    <button id="start">▶️ Start</button>
-    <button id="highscore">🏆 High Scores</button>
+    <h1 tabindex="0">🧠 Quiz Game</h1>
+    <input 
+      id="nickname" 
+      placeholder="📝 Your nickname" 
+      tabindex="0" 
+      autocomplete="off"
+    />
+    <div class="button-group">
+      <button id="start" tabindex="0">▶️ Start</button>
+      <button id="highscore" tabindex="0">🏆 High Scores</button>
+    </div>
   `
 
   const nicknameInput = document.getElementById('nickname')
   const startBtn = document.getElementById('start')
-  nicknameInput.focus()
+  const highscoreBtn = document.getElementById('highscore')
+  
+  // Focus nickname input immediately
+  requestAnimationFrame(() => {
+    nicknameInput.focus()
+  })
 
-  nicknameInput.addEventListener('keyup', e => {
-    if (e.key === 'Enter') startBtn.click()
+  // Handle Enter key in nickname input
+  nicknameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      if (nicknameInput.value.trim()) {
+        startBtn.click()
+      }
+    }
+  })
+
+  // Keyboard navigation for buttons
+  startBtn.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      highscoreBtn.focus()
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      startBtn.click()
+    }
+  })
+
+  highscoreBtn.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      nicknameInput.focus()
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      highscoreBtn.click()
+    }
   })
 
   startBtn.onclick = () => {
     const name = nicknameInput.value.trim()
-    if (!name) return alert('Please enter a nickname')
+    if (!name) {
+      alert('Please enter a nickname')
+      nicknameInput.focus()
+      return
+    }
     new Quiz(app).start(name)
   }
 
-  document.getElementById('highscore').onclick = () => showHighScores()
+  highscoreBtn.onclick = () => showHighScores()
 }
 
 showHome()

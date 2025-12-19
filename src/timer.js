@@ -1,11 +1,11 @@
 export class Timer {
-  constructor(seconds, onTimeout) {
+  constructor (seconds, onTimeout) { // Added space before (
     this.seconds = seconds
     this.onTimeout = onTimeout
     this.interval = null
   }
 
-  start(updateUI) {
+  start (updateUI) { // Added space before (
     let timeLeft = this.seconds
     updateUI(timeLeft)
 
@@ -20,7 +20,7 @@ export class Timer {
     }, 1000)
   }
 
-  stop() {
+  stop () { // Added space before (
     clearInterval(this.interval)
   }
 }

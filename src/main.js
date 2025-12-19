@@ -4,7 +4,10 @@ import { getScores } from './storage.js'
 
 const app = document.getElementById('app')
 
-export function showHighScores() {
+/**
+ * Displays high scores
+ */
+export function showHighScores () { // Added space before (
   const scores = getScores()
 
   let scoreHTML = '<h2 tabindex="0">🏆 High Scores</h2>'
@@ -17,13 +20,13 @@ export function showHighScores() {
     scoreHTML += '</ol>'
   }
 
-  scoreHTML += `<button id="back" tabindex="0">⬅️ Back</button>`
+  scoreHTML += '<button id="back" tabindex="0">⬅️ Back</button>' // Fixed quotes
   app.innerHTML = scoreHTML
 
   const backButton = document.getElementById('back')
   if (backButton) {
     backButton.focus()
-    
+
     // Handle Enter key on back button
     backButton.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
@@ -31,13 +34,16 @@ export function showHighScores() {
         backButton.click()
       }
     })
-    
+
     backButton.onclick = () => showHome()
   }
 }
 
-// Helper function for circular arrow key navigation
-function setupArrowNavigation(elements) {
+/**
+ * Helper function for circular arrow key navigation
+ * @param {Array} elements - Array of focusable elements
+ */
+function setupArrowNavigation (elements) { // Added space before (
   elements.forEach((element, index) => {
     element.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
@@ -53,7 +59,10 @@ function setupArrowNavigation(elements) {
   })
 }
 
-function showHome() {
+/**
+ * Shows the home screen
+ */
+function showHome () { // Added space before (
   app.innerHTML = `
     <h1 tabindex="0">🧠 Quiz Game</h1>
     <input 
@@ -71,7 +80,7 @@ function showHome() {
   const nicknameInput = document.getElementById('nickname')
   const startBtn = document.getElementById('start')
   const highscoreBtn = document.getElementById('highscore')
-  
+
   // Focus nickname input immediately
   requestAnimationFrame(() => {
     nicknameInput.focus()
@@ -119,4 +128,4 @@ function showHome() {
   highscoreBtn.onclick = () => showHighScores()
 }
 
-showHome()
+showHome() // Add newline at end

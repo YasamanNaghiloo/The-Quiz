@@ -9,6 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
+    "server": "vite preview",
     "htmlhint": "npx htmlhint public src || exit 0",
     "stylelint": "npx stylelint **/*.css || exit 0",
     "stylelint:fix": "npx stylelint --fix **/*.css || exit 0",

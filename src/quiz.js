@@ -28,12 +28,13 @@ export class Quiz {
     this.root.innerHTML = `
       <h2>${data.question}</h2>
       <form id="answer-form"></form>
-      <p>Time left: <span id="timer"></span></p>
+      <p>⏱️ Time left: <span id="timer"></span></p>
     `
 
     const form = document.getElementById('answer-form')
 
     if (data.alternatives) {
+      // Radio button question
       Object.entries(data.alternatives).forEach(([key, value]) => {
         form.innerHTML += `
           <label>
@@ -42,35 +43,71 @@ export class Quiz {
           </label><br>
         `
       })
+
+      const radios = form.querySelectorAll('input[type="radio"]')
+      requestAnimationFrame(() => radios[0].focus())
+
+      // Arrow navigation + Enter
+      form.onkeydown = e => {
+        let index = Array.from(radios).findIndex(r => r === document.activeElement)
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault()
+          index = (index + 1) % radios.length
+          radios[index].focus()
+        }
+
+        if (e.key === 'ArrowUp') {
+          e.preventDefault()
+          index = (index - 1 + radios.length) % radios.length
+          radios[index].focus()
+        }
+
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          const selected = form.querySelector('input[type="radio"]:checked') || radios[0]
+          selected.checked = true
+          form.requestSubmit()
+        }
+      }
+
     } else {
-      // Nice text input matching nickname style
-      form.innerHTML += `<input type="text" name="answer" required class="text-answer" />`
+      // Text input question
+      form.innerHTML += `<input type="text" name="answer" required class="text-answer" placeholder="✏️ Your answer" />`
+      const textInput = form.querySelector('.text-answer')
+      requestAnimationFrame(() => textInput.focus())
+
+      textInput.onkeydown = e => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          form.requestSubmit()
+        }
+      }
     }
 
-    form.innerHTML += `<button>Answer</button>`
+    // Always add submit button
+    form.innerHTML += `<button type="submit">➡️ Answer</button>`
 
+    // Timer
     this.timer = new Timer(10, () => this.gameOver('Time is up!'))
     this.timer.start(time => {
       document.getElementById('timer').textContent = time
     })
 
-    form.addEventListener('submit', e => {
+    // Form submission
+    form.onsubmit = e => {
       e.preventDefault()
       this.timer.stop()
       const answer = new FormData(form).get('answer')
       this.submitAnswer(data.nextURL, answer)
-    })
+    }
   }
 
   async submitAnswer(url, answer) {
     try {
       const result = await sendAnswer(url, answer)
-
-      if (!result.nextURL) {
-        this.victory()
-      } else {
-        this.loadQuestion(result.nextURL)
-      }
+      if (!result.nextURL) this.victory()
+      else this.loadQuestion(result.nextURL)
     } catch {
       this.gameOver('Wrong answer!')
     }
@@ -82,27 +119,28 @@ export class Quiz {
 
     this.root.innerHTML = `
       <h2 class="success">🎉 Victory!</h2>
-      <p>Time: ${totalTime.toFixed(2)}s</p>
-      <button id="restart">Restart</button>
-      <button id="highscore">High Scores</button>
+      <p>🏁 Time: ${totalTime.toFixed(2)}s</p>
+      <button id="restart">🔄 Restart</button>
+      <button id="highscore">🏆 High Scores</button>
     `
-
-    document.getElementById('restart').onclick = () => location.reload()
-    document.getElementById('highscore').onclick = () => {
-      import('./main.js').then(module => module.showHighScores())
-    }
+    this.addButtonFocusHandlers()
   }
 
   gameOver(message) {
     this.root.innerHTML = `
-      <h2 class="error">${message}</h2>
-      <button id="restart">Restart</button>
-      <button id="highscore">High Scores</button>
+      <h2 class="error">❌ ${message}</h2>
+      <button id="restart">🔄 Restart</button>
+      <button id="highscore">🏆 High Scores</button>
     `
+    this.addButtonFocusHandlers()
+  }
 
-    document.getElementById('restart').onclick = () => location.reload()
-    document.getElementById('highscore').onclick = () => {
-      import('./main.js').then(module => module.showHighScores())
-    }
+  addButtonFocusHandlers() {
+    const firstButton = this.root.querySelector('button')
+    if (firstButton) firstButton.focus()
+    const restart = document.getElementById('restart')
+    const highscore = document.getElementById('highscore')
+    restart.onclick = () => location.reload()
+    highscore.onclick = () => import('./main.js').then(mod => mod.showHighScores())
   }
 }

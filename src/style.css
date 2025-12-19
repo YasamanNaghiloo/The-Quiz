@@ -1,9 +1,9 @@
-/* Reset */
+/* Base styles */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 body {
@@ -13,44 +13,68 @@ body {
   justify-content: center;
   align-items: center;
   color: #333;
+  animation: fadeIn 1s ease;
 }
 
-/* Main app container */
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Main app card */
 #app {
   background: white;
-  padding: 2rem;
-  width: 100%;
-  max-width: 420px;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  padding: 2.5rem 2rem;
+  width: 90%;
+  max-width: 450px;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+  text-align: center;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  word-break: break-word;
+}
+
+#app:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 35px 60px rgba(0,0,0,0.25);
 }
 
 /* Headings */
 h1, h2 {
-  text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
+  color: #333;
+  word-wrap: break-word;
 }
 
-/* Nickname input */
+/* Input fields (nickname + text answer) */
 #nickname,
 .text-answer {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1rem;
   margin-top: 1rem;
   font-size: 1rem;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 2px solid #e2e8f0;
   background-color: #f8fafc;
   color: #1a202c;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 #nickname:focus,
 .text-answer:focus {
   outline: none;
   border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.25);
   background-color: #ffffff;
+  transform: scale(1.02);
 }
 
 #nickname::placeholder,
@@ -61,48 +85,87 @@ h1, h2 {
 /* Buttons */
 button {
   width: 100%;
-  padding: 0.7rem;
+  padding: 0.75rem;
   border: none;
-  border-radius: 6px;
-  background: #667eea;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
-  font-size: 1rem;
+  font-size: 1.05rem;
   cursor: pointer;
   margin-top: 1rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 button:hover {
-  background: #5a67d8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
-/* Radio label */
+/* Radio options */
 label {
   display: block;
-  padding: 0.4rem 0;
+  padding: 0.6rem 0;
   cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease;
+  border-radius: 8px;
+}
+
+input[type="radio"] {
+  margin-right: 0.6rem;
+}
+
+label:hover {
+  background-color: #f1f5f9;
+}
+
+/* Form layout */
+#answer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 /* Timer */
 p {
   margin-top: 1rem;
-  text-align: center;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
 #timer {
   color: #e53e3e;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
+  font-weight: bold;
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  background-color: #fff5f5;
+  transition: all 0.2s ease;
 }
 
 /* Game messages */
 .success {
   color: #38a169;
-  text-align: center;
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 
 .error {
   color: #e53e3e;
-  text-align: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  animation: shake 0.2s;
+}
+
+/* Shake animation for wrong answer */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
 }
 
 /* High score list */
@@ -112,7 +175,30 @@ ol {
 }
 
 li {
-  margin: 0.5rem 0;
+  margin: 0.6rem 0;
   font-weight: 500;
   color: #2d3748;
+  padding: 0.3rem 0.5rem;
+  border-radius: 8px;
+  background-color: #f7fafc;
+  transition: background 0.2s ease;
+}
+
+li:hover {
+  background-color: #ebf4ff;
+}
+
+/* Media responsiveness */
+@media(max-width: 480px){
+  #app {
+    padding: 2rem 1.5rem;
+  }
+
+  button {
+    font-size: 1rem;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+  }
 }

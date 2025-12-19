@@ -190,6 +190,9 @@ export class Quiz {
   }
 
   victory() {
+    if (this.timer) {
+    this.timer.stop()
+  }
     const totalTime = (Date.now() - this.startTime) / 1000
     saveScore(this.nickname, totalTime)
 

@@ -36,6 +36,23 @@ export function showHighScores() {
   }
 }
 
+// Helper function for circular arrow key navigation
+function setupArrowNavigation(elements) {
+  elements.forEach((element, index) => {
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        const nextIndex = (index + 1) % elements.length
+        elements[nextIndex].focus()
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        const prevIndex = (index - 1 + elements.length) % elements.length
+        elements[prevIndex].focus()
+      }
+    })
+  })
+}
+
 function showHome() {
   app.innerHTML = `
     <h1 tabindex="0">🧠 Quiz Game</h1>
@@ -70,22 +87,20 @@ function showHome() {
     }
   })
 
-  // Keyboard navigation for buttons
+  // Set up circular arrow key navigation between all elements
+  const focusableElements = [nicknameInput, startBtn, highscoreBtn]
+  setupArrowNavigation(focusableElements)
+
+  // Also handle Enter key for buttons
   startBtn.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight') {
-      e.preventDefault()
-      highscoreBtn.focus()
-    } else if (e.key === 'Enter') {
+    if (e.key === 'Enter') {
       e.preventDefault()
       startBtn.click()
     }
   })
 
   highscoreBtn.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault()
-      nicknameInput.focus()
-    } else if (e.key === 'Enter') {
+    if (e.key === 'Enter') {
       e.preventDefault()
       highscoreBtn.click()
     }

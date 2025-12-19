@@ -31,21 +31,34 @@ h1, h2 {
   margin-bottom: 1rem;
 }
 
-/* Input & buttons */
-input[type="text"],
-input[type="radio"] {
-  margin-top: 0.5rem;
-}
-
-input[type="text"] {
+/* Nickname input */
+#nickname,
+.text-answer {
   width: 100%;
-  padding: 0.6rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
   font-size: 1rem;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  background-color: #f8fafc;
+  color: #1a202c;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+#nickname:focus,
+.text-answer:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+  background-color: #ffffff;
+}
+
+#nickname::placeholder,
+.text-answer::placeholder {
+  color: #94a3b8;
+}
+
+/* Buttons */
 button {
   width: 100%;
   padding: 0.7rem;
@@ -62,7 +75,7 @@ button:hover {
   background: #5a67d8;
 }
 
-/* Answers */
+/* Radio label */
 label {
   display: block;
   padding: 0.4rem 0;
@@ -81,7 +94,7 @@ p {
   font-size: 1.2rem;
 }
 
-/* Game over / victory */
+/* Game messages */
 .success {
   color: #38a169;
   text-align: center;
@@ -90,4 +103,16 @@ p {
 .error {
   color: #e53e3e;
   text-align: center;
+}
+
+/* High score list */
+ol {
+  margin-top: 1rem;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin: 0.5rem 0;
+  font-weight: 500;
+  color: #2d3748;
 }

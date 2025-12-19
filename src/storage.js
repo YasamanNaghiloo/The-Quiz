@@ -10,3 +10,7 @@ export function saveScore(name, time) {
 export function getScores() {
   return JSON.parse(localStorage.getItem(KEY)) || []
 }
+
+export function clearScores() {
+  localStorage.removeItem(KEY)
+}

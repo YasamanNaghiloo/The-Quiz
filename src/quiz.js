@@ -1,6 +1,6 @@
 import { getQuestion, sendAnswer } from './api.js'
 import { Timer } from './timer.js'
-import { saveScore, getScores } from './storage.js'
+import { saveScore } from './storage.js'
 
 export class Quiz {
   constructor(root) {
@@ -37,13 +37,14 @@ export class Quiz {
       Object.entries(data.alternatives).forEach(([key, value]) => {
         form.innerHTML += `
           <label>
-            <input type="radio" name="answer" value="${key}">
+            <input type="radio" name="answer" value="${key}" required>
             ${value}
           </label><br>
         `
       })
     } else {
-      form.innerHTML += `<input type="text" name="answer" required />`
+      // Nice text input matching nickname style
+      form.innerHTML += `<input type="text" name="answer" required class="text-answer" />`
     }
 
     form.innerHTML += `<button>Answer</button>`
@@ -80,18 +81,28 @@ export class Quiz {
     saveScore(this.nickname, totalTime)
 
     this.root.innerHTML = `
-      <h2>🎉 Victory!</h2>
-      <p>Time: ${totalTime}s</p>
+      <h2 class="success">🎉 Victory!</h2>
+      <p>Time: ${totalTime.toFixed(2)}s</p>
       <button id="restart">Restart</button>
+      <button id="highscore">High Scores</button>
     `
 
     document.getElementById('restart').onclick = () => location.reload()
+    document.getElementById('highscore').onclick = () => {
+      import('./main.js').then(module => module.showHighScores())
+    }
   }
 
   gameOver(message) {
     this.root.innerHTML = `
-      <h2>${message}</h2>
-      <button onclick="location.reload()">Restart</button>
+      <h2 class="error">${message}</h2>
+      <button id="restart">Restart</button>
+      <button id="highscore">High Scores</button>
     `
+
+    document.getElementById('restart').onclick = () => location.reload()
+    document.getElementById('highscore').onclick = () => {
+      import('./main.js').then(module => module.showHighScores())
+    }
   }
 }

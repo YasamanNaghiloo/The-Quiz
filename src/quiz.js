@@ -1,209 +1,97 @@
-/**
- * Quiz Game Class
- * Main game logic controller
- */
-class QuizGame {
-    constructor(apiService, timer, highscoreManager, uiManager) {
-        this.apiService = apiService;
-        this.timer = timer;
-        this.highscoreManager = highscoreManager;
-        this.uiManager = uiManager;
-        
-        this.nickname = '';
-        this.startTime = null;
-        this.totalTime = 0;
-        this.questionCount = 0;
-        this.isGameActive = false;
-        
-        this.bindEvents();
-        
-        // Set timer callbacks - THIS WAS MISSING!
-        this.timer.onTick = (timeLeft) => {
-            this.uiManager.updateTimer(timeLeft);
-            this.uiManager.updateProgress((timeLeft / 10) * 100);
-        };
-        
-        this.timer.onTimeout = () => {
-            this.endGame(false);
-        };
+import { getQuestion, sendAnswer } from './api.js'
+import { Timer } from './timer.js'
+import { saveScore, getScores } from './storage.js'
+
+export class Quiz {
+  constructor(root) {
+    this.root = root
+    this.startTime = null
+    this.timer = null
+  }
+
+  start(nickname) {
+    this.nickname = nickname
+    this.startTime = Date.now()
+    this.loadQuestion('https://courselab.lnu.se/quiz/question/1')
+  }
+
+  async loadQuestion(url) {
+    try {
+      const data = await getQuestion(url)
+      this.renderQuestion(data)
+    } catch {
+      this.gameOver('Could not load question')
+    }
+  }
+
+  renderQuestion(data) {
+    this.root.innerHTML = `
+      <h2>${data.question}</h2>
+      <form id="answer-form"></form>
+      <p>Time left: <span id="timer"></span></p>
+    `
+
+    const form = document.getElementById('answer-form')
+
+    if (data.alternatives) {
+      Object.entries(data.alternatives).forEach(([key, value]) => {
+        form.innerHTML += `
+          <label>
+            <input type="radio" name="answer" value="${key}">
+            ${value}
+          </label><br>
+        `
+      })
+    } else {
+      form.innerHTML += `<input type="text" name="answer" required />`
     }
 
-    /**
-     * Bind event listeners
-     */
-    bindEvents() {
-        // Start game
-        this.uiManager.elements.startBtn.addEventListener('click', () => this.startGame());
-        this.uiManager.elements.nickname.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && this.uiManager.elements.nickname.value.trim()) {
-                this.startGame();
-            }
-        });
+    form.innerHTML += `<button>Answer</button>`
 
-        // Submit answer
-        this.uiManager.elements.submitAnswer.addEventListener('click', () => this.submitAnswer());
-        
-        // Listen for Enter key in answer input
-        this.uiManager.elements.answerContainer.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !this.uiManager.elements.submitAnswer.disabled) {
-                this.submitAnswer();
-            }
-        });
+    this.timer = new Timer(10, () => this.gameOver('Time is up!'))
+    this.timer.start(time => {
+      document.getElementById('timer').textContent = time
+    })
 
-        // Give up
-        this.uiManager.elements.giveUpBtn.addEventListener('click', () => this.endGame(false));
+    form.addEventListener('submit', e => {
+      e.preventDefault()
+      this.timer.stop()
+      const answer = new FormData(form).get('answer')
+      this.submitAnswer(data.nextURL, answer)
+    })
+  }
 
-        // Navigation
-        this.uiManager.elements.viewHighscoreBtn.addEventListener('click', () => this.showHighScores());
-        this.uiManager.elements.backFromHighscore.addEventListener('click', () => {
-            if (this.isGameActive) {
-                this.uiManager.showScreen('game');
-            } else {
-                this.uiManager.showScreen('start');
-            }
-        });
-        this.uiManager.elements.clearHighscores.addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear all high scores?')) {
-                this.highscoreManager.clearHighScores();
-                this.uiManager.displayHighScores([], this.highscoreManager);
-            }
-        });
-        this.uiManager.elements.playAgainBtn.addEventListener('click', () => this.resetGame());
-        this.uiManager.elements.backToStartBtn.addEventListener('click', () => {
-            this.resetGame();
-            this.uiManager.showScreen('start');
-        });
+  async submitAnswer(url, answer) {
+    try {
+      const result = await sendAnswer(url, answer)
+
+      if (!result.nextURL) {
+        this.victory()
+      } else {
+        this.loadQuestion(result.nextURL)
+      }
+    } catch {
+      this.gameOver('Wrong answer!')
     }
+  }
 
-    /**
-     * Start a new game
-     */
-    async startGame() {
-        const nickname = this.uiManager.elements.nickname.value.trim();
-        if (!nickname) {
-            alert('Please enter a nickname!');
-            this.uiManager.elements.nickname.focus();
-            return;
-        }
+  victory() {
+    const totalTime = (Date.now() - this.startTime) / 1000
+    saveScore(this.nickname, totalTime)
 
-        this.nickname = nickname;
-        this.startTime = Date.now();
-        this.totalTime = 0;
-        this.questionCount = 0;
-        this.isGameActive = true;
+    this.root.innerHTML = `
+      <h2>🎉 Victory!</h2>
+      <p>Time: ${totalTime}s</p>
+      <button id="restart">Restart</button>
+    `
 
-        // Update UI
-        this.uiManager.elements.playerName.textContent = `Player: ${nickname}`;
-        this.uiManager.showScreen('game');
+    document.getElementById('restart').onclick = () => location.reload()
+  }
 
-        try {
-            // Get first question
-            const question = await this.apiService.getFirstQuestion();
-            this.questionCount = 1;
-            this.uiManager.displayQuestion(question, this.questionCount);
-            this.timer.start();
-        } catch (error) {
-            console.error('Error starting game:', error);
-            this.uiManager.showError('Failed to load quiz. Please try again.');
-            this.uiManager.showScreen('start');
-        }
-    }
-
-    /**
-     * Submit current answer
-     */
-    async submitAnswer() {
-        if (!this.isGameActive) return;
-
-        const answer = this.uiManager.getAnswer();
-        if (!answer) {
-            this.uiManager.showError('Please provide an answer!');
-            return;
-        }
-
-        // Stop timer temporarily
-        const timeLeft = this.timer.getTimeLeft();
-        this.timer.stop();
-        this.totalTime += (10 - timeLeft);
-
-        // Show loading
-        this.uiManager.showLoading();
-
-        try {
-            const result = await this.apiService.sendAnswer(answer);
-
-            if (result.success) {
-                // Correct answer - show next question
-                this.questionCount++;
-                
-                if (result.question.nextURL) {
-                    // More questions available
-                    this.uiManager.displayQuestion(result.question, this.questionCount);
-                    this.timer.reset();
-                    this.timer.start();
-                } else {
-                    // Quiz completed!
-                    this.totalTime += (10 - timeLeft);
-                    this.endGame(true);
-                }
-            } else {
-                // Wrong answer
-                this.endGame(false);
-            }
-        } catch (error) {
-            console.error('Error submitting answer:', error);
-            this.uiManager.showError('An error occurred. Please try again.');
-            this.timer.start();
-            this.uiManager.displayQuestion(this.apiService.currentQuestion, this.questionCount);
-        }
-    }
-
-    /**
-     * End the game
-     * @param {boolean} isWin - Whether the player won
-     */
-    endGame(isWin) {
-        this.isGameActive = false;
-        this.timer.stop();
-
-        if (isWin) {
-            // Calculate total time
-            const totalSeconds = Math.round(this.totalTime);
-            
-            // Check and add high score
-            if (this.highscoreManager.isHighScore(totalSeconds)) {
-                this.highscoreManager.addHighScore(this.nickname, totalSeconds);
-            }
-        }
-
-        // Show game over screen
-        this.uiManager.showGameOver(isWin, this.nickname, Math.round(this.totalTime), this.questionCount);
-        this.uiManager.showScreen('gameOver');
-    }
-
-    /**
-     * Show high scores screen
-     */
-    showHighScores() {
-        const highscores = this.highscoreManager.getHighScores();
-        this.uiManager.displayHighScores(highscores, this.highscoreManager);
-        this.uiManager.showScreen('highscore');
-    }
-
-    /**
-     * Reset the game
-     */
-    resetGame() {
-        this.timer.reset();
-        this.apiService.reset();
-        this.isGameActive = false;
-        
-        // Reset UI elements
-        this.uiManager.elements.nickname.value = '';
-        this.uiManager.elements.nickname.focus();
-        
-        this.startGame();
-    }
+  gameOver(message) {
+    this.root.innerHTML = `
+      <h2>${message}</h2>
+      <button onclick="location.reload()">Restart</button>
+    `
+  }
 }
-
-export default QuizGame;

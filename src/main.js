@@ -1,52 +1,19 @@
-/**
- * Main Application Entry Point
- * Initializes and coordinates all components
- */
+import './style.css'
+import { Quiz } from './quiz.js'
 
-import ApiService from './api-service.js';
-import Timer from './timer.js';
-import HighScoreManager from './highscore.js';
-import UIManager from './ui-manager.js';
-import QuizGame from './quiz.js';
+const app = document.getElementById('app')
 
-/**
- * Initialize the application
- */
-class QuizApplication {
-    constructor() {
-        this.apiService = new ApiService();
-        this.timer = new Timer(10); // 10 seconds per question
-        this.highscoreManager = new HighScoreManager();
-        this.uiManager = new UIManager();
-        this.quizGame = new QuizGame(
-            this.apiService,
-            this.timer,
-            this.highscoreManager,
-            this.uiManager
-        );
+app.innerHTML = `
+  <h1>Quiz Game</h1>
+  <input id="nickname" placeholder="Your nickname" />
+  <button id="start">Start</button>
+`
 
-        this.initialize();
-    }
-
-    /**
-     * Initialize the application
-     */
-    initialize() {
-        console.log('Quiz Application initialized');
-        
-        // Focus on nickname input on start
-        this.uiManager.elements.nickname.focus();
-
-        // Display initial high scores if any
-        const highscores = this.highscoreManager.getHighScores();
-        this.uiManager.displayHighScores(highscores, this.highscoreManager);
-    }
+document.getElementById('start').onclick = () => {
+  const name = document.getElementById('nickname').value.trim()
+  if (!name) {
+    alert('Please enter a nickname')
+    return
+  }
+  new Quiz(app).start(name)
 }
-
-// Start the application when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new QuizApplication();
-});
-
-// Export for testing if needed
-export default QuizApplication;

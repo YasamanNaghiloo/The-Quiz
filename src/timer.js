@@ -23,11 +23,13 @@ class Timer {
             this.stop();
         }
 
-        this.onTick = onTick;
-        this.onTimeout = onTimeout;
+        if (onTick) this.onTick = onTick;
+        if (onTimeout) this.onTimeout = onTimeout;
         this.timeLeft = this.duration;
         this.startTime = Date.now();
         this.isRunning = true;
+
+        console.log('Timer started');
 
         this.timerId = setInterval(() => {
             const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
@@ -38,6 +40,7 @@ class Timer {
             }
 
             if (this.timeLeft <= 0) {
+                console.log('Timer reached 0');
                 this.stop();
                 if (this.onTimeout) {
                     this.onTimeout();
@@ -55,6 +58,7 @@ class Timer {
             this.timerId = null;
         }
         this.isRunning = false;
+        console.log('Timer stopped');
     }
 
     /**

@@ -82,10 +82,12 @@ class UIManager {
         this.elements.answerContainer.innerHTML = '';
         this.elements.submitAnswer.disabled = true;
 
-        if (question.type === 'text') {
-            this.createTextAnswerInput();
-        } else if (question.alternatives) {
+        // Check question type based on available properties
+        // The API doesn't have a "type" field, so we check for alternatives
+        if (question.alternatives && Object.keys(question.alternatives).length > 0) {
             this.createMultipleChoice(question.alternatives);
+        } else {
+            this.createTextAnswerInput();
         }
 
         // Focus on the first input
@@ -170,8 +172,9 @@ class UIManager {
      * @returns {string|Object} The answer
      */
     getAnswer() {
-        if (this.elements.answerContainer.querySelector('.text-answer')) {
-            return this.elements.answerContainer.querySelector('.text-answer').value;
+        const textInput = this.elements.answerContainer.querySelector('.text-answer');
+        if (textInput) {
+            return textInput.value;
         } else {
             const selectedRadio = this.elements.answerContainer.querySelector('input[type="radio"]:checked');
             return selectedRadio ? { answer: selectedRadio.value } : null;
@@ -194,10 +197,12 @@ class UIManager {
             
             const timeFormatted = this.formatTime(time);
             this.elements.finalStats.innerHTML = `
-                <p><strong>Player:</strong> ${nickname}</p>
-                <p><strong>Total Time:</strong> ${timeFormatted}</p>
-                <p><strong>Questions:</strong> ${questionCount}</p>
-                <p><strong>Average time per question:</strong> ${(time / questionCount).toFixed(1)}s</p>
+                <div style="text-align: left; max-width: 300px; margin: 0 auto;">
+                    <p><strong>Player:</strong> ${nickname}</p>
+                    <p><strong>Total Time:</strong> ${timeFormatted}</p>
+                    <p><strong>Questions:</strong> ${questionCount}</p>
+                    <p><strong>Average time per question:</strong> ${(time / questionCount).toFixed(1)}s</p>
+                </div>
             `;
         } else {
             this.elements.resultTitle.textContent = '😔 Game Over';
@@ -206,9 +211,11 @@ class UIManager {
                 'Time ran out or you answered incorrectly.';
             
             this.elements.finalStats.innerHTML = `
-                <p><strong>Player:</strong> ${nickname}</p>
-                <p><strong>Questions completed:</strong> ${questionCount - 1}</p>
-                <p>Better luck next time!</p>
+                <div style="text-align: left; max-width: 300px; margin: 0 auto;">
+                    <p><strong>Player:</strong> ${nickname}</p>
+                    <p><strong>Questions completed:</strong> ${questionCount - 1}</p>
+                    <p>Better luck next time!</p>
+                </div>
             `;
         }
     }
@@ -280,7 +287,9 @@ class UIManager {
         this.elements.questionContainer.prepend(errorDiv);
         
         setTimeout(() => {
-            errorDiv.remove();
+            if (errorDiv.parentNode) {
+                errorDiv.remove();
+            }
         }, 3000);
     }
 }

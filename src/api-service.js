@@ -6,7 +6,6 @@ class ApiService {
     constructor() {
         this.baseUrl = 'https://courselab.lnu.se/quiz';
         this.currentQuestion = null;
-        this.session = null;
     }
 
     /**
@@ -16,14 +15,18 @@ class ApiService {
     async getFirstQuestion() {
         try {
             const response = await fetch(`${this.baseUrl}/question/1`);
+            
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                throw new Error(`Failed to fetch question: ${response.status} ${errorText}`);
             }
+            
             this.currentQuestion = await response.json();
+            console.log('First question:', this.currentQuestion); // For debugging
             return this.currentQuestion;
         } catch (error) {
             console.error('Error fetching first question:', error);
-            throw error;
+            throw new Error('Could not connect to quiz server. Please check your internet connection.');
         }
     }
 
@@ -34,22 +37,29 @@ class ApiService {
      */
     async sendAnswer(answer) {
         if (!this.currentQuestion) {
-            throw new Error('No current question');
+            throw new Error('No current question available');
+        }
+
+        if (!this.currentQuestion.nextURL) {
+            throw new Error('No URL to send answer to');
         }
 
         try {
+            console.log('Sending answer:', answer, 'to:', this.currentQuestion.nextURL);
+            
             const response = await fetch(this.currentQuestion.nextURL, {
                 method: this.currentQuestion.nextMethod || 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify(answer)
             });
 
             const data = await response.json();
+            console.log('Response:', response.status, data);
 
             if (response.status === 400 || response.status === 422) {
-                // Wrong answer
                 return {
                     success: false,
                     message: data.message || 'Wrong answer!'
@@ -57,7 +67,7 @@ class ApiService {
             }
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`Server error: ${response.status} ${JSON.stringify(data)}`);
             }
 
             // Store the new question
@@ -78,7 +88,6 @@ class ApiService {
      */
     reset() {
         this.currentQuestion = null;
-        this.session = null;
     }
 }
 

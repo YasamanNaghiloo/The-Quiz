@@ -16,6 +16,16 @@ class QuizGame {
         this.isGameActive = false;
         
         this.bindEvents();
+        
+        // Set timer callbacks - THIS WAS MISSING!
+        this.timer.onTick = (timeLeft) => {
+            this.uiManager.updateTimer(timeLeft);
+            this.uiManager.updateProgress((timeLeft / 10) * 100);
+        };
+        
+        this.timer.onTimeout = () => {
+            this.endGame(false);
+        };
     }
 
     /**
@@ -32,6 +42,13 @@ class QuizGame {
 
         // Submit answer
         this.uiManager.elements.submitAnswer.addEventListener('click', () => this.submitAnswer());
+        
+        // Listen for Enter key in answer input
+        this.uiManager.elements.answerContainer.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !this.uiManager.elements.submitAnswer.disabled) {
+                this.submitAnswer();
+            }
+        });
 
         // Give up
         this.uiManager.elements.giveUpBtn.addEventListener('click', () => this.endGame(false));
@@ -56,16 +73,6 @@ class QuizGame {
             this.resetGame();
             this.uiManager.showScreen('start');
         });
-
-        // Timer callback
-        this.timer.onTick = (timeLeft) => {
-            this.uiManager.updateTimer(timeLeft);
-            this.uiManager.updateProgress((timeLeft / 10) * 100);
-        };
-
-        this.timer.onTimeout = () => {
-            this.endGame(false);
-        };
     }
 
     /**
@@ -97,7 +104,7 @@ class QuizGame {
             this.timer.start();
         } catch (error) {
             console.error('Error starting game:', error);
-            alert('Failed to load quiz. Please try again.');
+            this.uiManager.showError('Failed to load quiz. Please try again.');
             this.uiManager.showScreen('start');
         }
     }
@@ -110,7 +117,7 @@ class QuizGame {
 
         const answer = this.uiManager.getAnswer();
         if (!answer) {
-            alert('Please provide an answer!');
+            this.uiManager.showError('Please provide an answer!');
             return;
         }
 
@@ -145,7 +152,7 @@ class QuizGame {
             }
         } catch (error) {
             console.error('Error submitting answer:', error);
-            alert('An error occurred. Please try again.');
+            this.uiManager.showError('An error occurred. Please try again.');
             this.timer.start();
             this.uiManager.displayQuestion(this.apiService.currentQuestion, this.questionCount);
         }
